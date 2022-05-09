@@ -73,10 +73,11 @@ class PyflakesDiagnosticReport:
             if isinstance(message, message_type):
                 severity = lsp.DiagnosticSeverity.Error
                 break
-
-        self.diagnostics.append({
-            'source': 'pyflakes',
-            'range': err_range,
-            'message': message.message % message.message_args,
-            'severity': severity
-        })
+        if not (isinstance(message, messages.UnusedImport) or
+           isinstance(message, messages.UnusedVariable)):
+            self.diagnostics.append({
+                'source': 'pyflakes',
+                'range': err_range,
+                'message': message.message % message.message_args,
+                'severity': severity
+            })
