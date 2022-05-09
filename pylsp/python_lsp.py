@@ -287,7 +287,7 @@ class PythonLSPServer(MethodDispatcher):
         return flatten(self._hook('pylsp_document_highlight', doc_uri, position=position)) or None
 
     def hover(self, doc_uri, position):
-        lints = flatten(self._hook('pyls_lint', doc_uri, is_saved=False))
+        lints = flatten(self._hook('pylsp_lint', doc_uri, is_saved=False))
         for lint in lints:
             if lint['severity'] == lsp.DiagnosticSeverity.Warning:
                 if position['line'] == lint['range']['start']['line'] or \
