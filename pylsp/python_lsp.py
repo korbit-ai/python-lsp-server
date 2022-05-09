@@ -293,7 +293,7 @@ class PythonLSPServer(MethodDispatcher):
                 if position['line'] == lint['range']['start']['line'] or \
                     position['line'] == lint['range']['end']['line']:
                     return {'contents': ''}
-        return self._hook('pyls_hover', doc_uri, position=position) or {'contents': ''}
+        return self._hook('pylsp_hover', doc_uri, position=position) or {'contents': ''}
 
     @_utils.debounce(LINT_DEBOUNCE_S, keyed_by='doc_uri')
     def lint(self, doc_uri, is_saved):
