@@ -2,7 +2,7 @@
 # Copyright 2021- Python Language Server Contributors.
 
 from pyflakes import api as pyflakes_api, messages
-from pylsp import hookimpl, lsp
+from pyls import hookimpl, lsp
 
 # Pyflakes messages that should be reported as Errors instead of Warns
 PYFLAKES_ERROR_MESSAGES = (
@@ -73,10 +73,11 @@ class PyflakesDiagnosticReport:
             if isinstance(message, message_type):
                 severity = lsp.DiagnosticSeverity.Error
                 break
-
-        self.diagnostics.append({
-            'source': 'pyflakes',
-            'range': err_range,
-            'message': message.message % message.message_args,
-            'severity': severity
-        })
+        if not (isinstance(message, messages.UnusedImport) or
+           isinstance(message, messages.UnusedVariable)):
+            self.diagnostics.append({
+                'source': 'pyflakes',
+                'range': err_range,
+                'message': message.message % message.message_args,
+                'severity': severity
+            })
