@@ -298,18 +298,15 @@ class PythonLSPServer(MethodDispatcher):
     @_utils.debounce(LINT_DEBOUNCE_S, keyed_by='doc_uri')
     def lint(self, doc_uri, is_saved):
         # Since we're debounced, the document may no longer be open
-        lints = flatten(self._hook('pylsp_lint', doc_uri, is_saved=is_saved))
-        errors = []
+        lints = flatten(self._hook('pylsp_lint', doc_uri, is_saved=False))
+        errors = [lint for lint in lints if lint['severity'] == lsp.DiagnosticSeverity.Error]
         new_lints = []
         for lint in lints:
-            new_lints.append(lint)
-            if lint['severity'] == lsp.DiagnosticSeverity.Error:
-                errors.append(lint)
-            else:
-                for error in errors:
-                    if lint['range']['start']['line'] == error['range']['start']['line'] or \
-                       lint['range']['start']['line'] == error['range']['end']['line']:
-                        new_lints.pop()
+            for  error in errors:
+                lint_start, lint_end = lint['range']['start']['line'],  lint['range']['end']['line']
+                error_start, error_end = error['range']['start']['line'],  error['range']['end']['line'] 
+                if not (error_start <= lint_end <= error_end or error_start <= lint_start <= error_end):    
+                    new_lints.append(lint)
         workspace = self._match_uri_to_workspace(doc_uri)
         if doc_uri in workspace.documents:
             workspace.publish_diagnostics(
