@@ -291,7 +291,7 @@ class PythonLSPServer(MethodDispatcher):
         for lint in lints:
             if lint['severity'] == lsp.DiagnosticSeverity.Warning:
                 if position['line'] == lint['range']['start']['line'] or \
-                    position['line'] == lint['range']['end']['line']:
+                   position['line'] == lint['range']['end']['line']:
                     return {'contents': ''}
         return self._hook('pylsp_hover', doc_uri, position=position) or {'contents': ''}
 
