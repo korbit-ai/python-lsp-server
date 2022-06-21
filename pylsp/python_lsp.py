@@ -489,7 +489,7 @@ def merge(list_of_dicts):
 
 def korbit_custom_lints(lints):
     errors = [lint for lint in lints if lint['severity'] == lsp.DiagnosticSeverity.Error]
-    new_lints = []
+    new_lints = errors
     for lint in lints:
         for error in errors:
             lint_start, lint_end = lint['range']['start']['line'], lint['range']['end']['line']
