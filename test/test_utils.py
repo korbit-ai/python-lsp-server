@@ -157,3 +157,35 @@ def test_korbit_custom_lints_between():
     new_lints = korbit_custom_lints(lints)
     assert len(new_lints) == 1
     assert new_lints[0]['severity'] == 1
+
+
+def test_korbit_custom_lints_warning():
+    lints = [
+        {
+            'source': "pyflakes",
+            'range': {
+                'start': {'line': 2, 'character': 19}, 'end': {'line': 3, 'character': 38}
+            },
+            'message': "EOL while scanning string literal",
+            'severity': 1,
+        },
+        {
+            'source': "pycodestyle",
+            'range': {
+                'start': {
+                    'line': 4,
+                    'character': 13
+                },
+                'end': {
+                    'line': 4,
+                    'character': 19
+                }
+            },
+            'message': "E221 multiple spaces before operator",
+            'severity': 2,
+        }
+    ]
+    new_lints = korbit_custom_lints(lints)
+    assert len(new_lints) == 2
+    assert new_lints[0]['severity'] == 1
+    assert new_lints[1]['severity'] == 2
