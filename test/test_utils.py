@@ -7,6 +7,7 @@ from unittest import mock
 from flaky import flaky
 
 from pylsp import _utils
+from pylsp.python_lsp import korbit_custom_lints
 
 
 @flaky(max_runs=6, min_passes=1)
@@ -94,3 +95,97 @@ def test_clip_column():
     assert _utils.clip_column(2, ['123\n', '123'], 0) == 2
     assert _utils.clip_column(3, ['123\n', '123'], 0) == 3
     assert _utils.clip_column(4, ['123\n', '123'], 1) == 3
+
+
+def test_korbit_custom_lints():
+    lints = [
+        {
+            'source': "pyflakes",
+            'range': {
+                'start': {'line': 3, 'character': 19}, 'end': {'line': 3, 'character': 38}
+            },
+            'message': "EOL while scanning string literal",
+            'severity': 1,
+        },
+        {
+            'source': "pycodestyle",
+            'range': {
+                'start': {
+                    'line': 3,
+                    'character': 13
+                },
+                'end': {
+                    'line': 3,
+                    'character': 19
+                }
+            },
+            'message': "E221 multiple spaces before operator",
+            'severity': 2,
+        }
+    ]
+    new_lints = korbit_custom_lints(lints)
+    assert len(new_lints) == 1
+    assert new_lints[0]['severity'] == 1
+
+
+def test_korbit_custom_lints_between():
+    lints = [
+        {
+            'source': "pyflakes",
+            'range': {
+                'start': {'line': 2, 'character': 19}, 'end': {'line': 5, 'character': 38}
+            },
+            'message': "EOL while scanning string literal",
+            'severity': 1,
+        },
+        {
+            'source': "pycodestyle",
+            'range': {
+                'start': {
+                    'line': 3,
+                    'character': 13
+                },
+                'end': {
+                    'line': 3,
+                    'character': 19
+                }
+            },
+            'message': "E221 multiple spaces before operator",
+            'severity': 2,
+        }
+    ]
+    new_lints = korbit_custom_lints(lints)
+    assert len(new_lints) == 1
+    assert new_lints[0]['severity'] == 1
+
+
+def test_korbit_custom_lints_warning():
+    lints = [
+        {
+            'source': "pyflakes",
+            'range': {
+                'start': {'line': 2, 'character': 19}, 'end': {'line': 3, 'character': 38}
+            },
+            'message': "EOL while scanning string literal",
+            'severity': 1,
+        },
+        {
+            'source': "pycodestyle",
+            'range': {
+                'start': {
+                    'line': 4,
+                    'character': 13
+                },
+                'end': {
+                    'line': 4,
+                    'character': 19
+                }
+            },
+            'message': "E221 multiple spaces before operator",
+            'severity': 2,
+        }
+    ]
+    new_lints = korbit_custom_lints(lints)
+    assert len(new_lints) == 2
+    assert new_lints[0]['severity'] == 1
+    assert new_lints[1]['severity'] == 2

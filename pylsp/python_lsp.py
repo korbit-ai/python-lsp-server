@@ -291,18 +291,19 @@ class PythonLSPServer(MethodDispatcher):
         for lint in lints:
             if lint['severity'] == lsp.DiagnosticSeverity.Warning:
                 if position['line'] == lint['range']['start']['line'] or \
-                    position['line'] == lint['range']['end']['line']:
+                   position['line'] == lint['range']['end']['line']:
                     return {'contents': ''}
         return self._hook('pylsp_hover', doc_uri, position=position) or {'contents': ''}
 
     @_utils.debounce(LINT_DEBOUNCE_S, keyed_by='doc_uri')
     def lint(self, doc_uri, is_saved):
         # Since we're debounced, the document may no longer be open
+        lints = flatten(self._hook('pylsp_lint', doc_uri, is_saved=is_saved))
         workspace = self._match_uri_to_workspace(doc_uri)
         if doc_uri in workspace.documents:
             workspace.publish_diagnostics(
                 doc_uri,
-                flatten(self._hook('pylsp_lint', doc_uri, is_saved=is_saved))
+                korbit_custom_lints(lints)
             )
 
     def references(self, doc_uri, position, exclude_declaration):
@@ -475,3 +476,15 @@ def flatten(list_of_lists):
 
 def merge(list_of_dicts):
     return {k: v for dictionary in list_of_dicts for k, v in dictionary.items()}
+
+
+def korbit_custom_lints(lints):
+    errors = [lint for lint in lints if lint['severity'] == lsp.DiagnosticSeverity.Error]
+    new_lints = errors
+    for lint in lints:
+        for error in errors:
+            lint_start, lint_end = lint['range']['start']['line'], lint['range']['end']['line']
+            error_start, error_end = error['range']['start']['line'], error['range']['end']['line']
+            if not (error_start <= lint_end <= error_end or error_start <= lint_start <= error_end):
+                new_lints.append(lint)
+    return new_lints
