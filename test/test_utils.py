@@ -125,7 +125,7 @@ def test_korbit_custom_lints():
     ]
     new_lints = korbit_custom_lints(lints)
     assert len(new_lints) == 1
-    assert len(new_lints[0]['severity']) == 1
+    assert new_lints[0]['severity'] == 1
 
 
 def test_korbit_custom_lints_between():
@@ -156,4 +156,4 @@ def test_korbit_custom_lints_between():
     ]
     new_lints = korbit_custom_lints(lints)
     assert len(new_lints) == 1
-    assert len(new_lints[0]['severity']) == 1
+    assert new_lints[0]['severity'] == 1
